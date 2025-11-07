@@ -1,6 +1,10 @@
 from flask import Flask
 import threading
 import time
+
+while True:
+    print("Worker actif 🚀")
+    time.sleep(30)  # toutes les 30 secondes
 import requests
 import os  # <- pour lire les variables d'environnement
 
