@@ -20,7 +20,7 @@ services:
     name: librelink-nightscout-worker
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: python worker.py
+    startCommand: python app.py & python worker.py
     envVars:
       - key: LLA_EMAIL
         sync: false
