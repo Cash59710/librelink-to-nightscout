@@ -6,7 +6,10 @@ while True:
     print("Worker actif 🚀")
     time.sleep(30)  # toutes les 30 secondes
 import requests
-import os  # <- pour lire les variables d'environnement
+import os
+
+port = int(os.environ.get("PORT", 10000))
+app.run(host='0.0.0.0', port=port)
 
 # --- CONFIGURATION via ENV ---
 LLA_EMAIL = os.environ.get("LLA_EMAIL")
