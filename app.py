@@ -2,36 +2,29 @@ from flask import Flask
 import threading
 import time
 import requests
+import os  # <- pour lire les variables d'environnement
 
-# --- CONFIGURATION ---
-LLA_EMAIL = "ton_email_librelink"
-LLA_PASSWORD = "ton_mdp_librelink"
-NIGHTSCOUT_URL = "https://ton-nightscout-url.com"
-NIGHTSCOUT_API_SECRET = "ton_api_secret"
+# --- CONFIGURATION via ENV ---
+LLA_EMAIL = os.environ.get("LLA_EMAIL")
+LLA_PASSWORD = os.environ.get("LLA_PASSWORD")
+NIGHTSCOUT_URL = os.environ.get("NIGHTSCOUT_URL")
+NIGHTSCOUT_API_SECRET = os.environ.get("NIGHTSCOUT_API_SECRET")
 
-# --- FONCTIONS DU WORKER (copié de worker.py) ---
+# --- FONCTIONS DU WORKER ---
 def get_librelink_data():
-    """
-    Copie ici le code principal de ton worker.py
-    Exemple : connexion à LibreLinkUp, récupération des glycémies
-    """
     try:
         session = requests.Session()
         login_url = "https://eu.libreview.io/llu/auth/login"
-        # Adaptation selon ton worker.py
         resp = session.post(login_url, data={"email": LLA_EMAIL, "password": LLA_PASSWORD})
         resp.raise_for_status()
         
-        # Ici tu récupères tes glycémies depuis la réponse
-        # Exemple fictif
-        glycemia = 100  # remplacer par la valeur réelle
+        # Exemple fictif de glycémie
+        glycemia = 100
         timestamp = int(time.time() * 1000)
         
-        # Envoyer à Nightscout
         data = {"sgv": glycemia, "date": timestamp}
         r = requests.post(f"{NIGHTSCOUT_URL}/api/v1/entries.json?api_secret={NIGHTSCOUT_API_SECRET}", json=data)
         r.raise_for_status()
-        
         print("Glycémie envoyée ✔️")
     except Exception as e:
         print("Erreur récupération LibreLinkUp :", e)
@@ -39,7 +32,7 @@ def get_librelink_data():
 def worker_loop():
     while True:
         get_librelink_data()
-        time.sleep(60)  # récupérer toutes les 60s (ajuste si besoin)
+        time.sleep(60)  # récupérer toutes les 60s
 
 # --- FLASK APP ---
 app = Flask(__name__)
