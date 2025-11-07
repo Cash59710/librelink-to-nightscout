@@ -1,9 +1,26 @@
 services:
   - type: web
-    name: librelink-nightscout
+    name: librelink-nightscout-web
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: python app.py
+    envVars:
+      - key: LLA_EMAIL
+        sync: false
+      - key: LLA_PASSWORD
+        sync: false
+      - key: LLA_REGION
+        value: EU
+      - key: NIGHTSCOUT_URL
+        sync: false
+      - key: NIGHTSCOUT_API_SECRET
+        sync: false
+
+  - type: worker
+    name: librelink-nightscout-worker
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python worker.py
     envVars:
       - key: LLA_EMAIL
         sync: false
