@@ -1,15 +1,9 @@
 from flask import Flask
 import threading
 import time
-
-while True:
-    print("Worker actif 🚀")
-    time.sleep(30)  # toutes les 30 secondes
 import requests
 import os
-
-port = int(os.environ.get("PORT", 10000))
-app.run(host='0.0.0.0', port=port)
+import sys
 
 # --- CONFIGURATION via ENV ---
 LLA_EMAIL = os.environ.get("LLA_EMAIL")
@@ -32,14 +26,17 @@ def get_librelink_data():
         data = {"sgv": glycemia, "date": timestamp}
         r = requests.post(f"{NIGHTSCOUT_URL}/api/v1/entries.json?api_secret={NIGHTSCOUT_API_SECRET}", json=data)
         r.raise_for_status()
-        print("Glycémie envoyée ✔️")
+        
+        print(f"[Worker] Glycémie envoyée ✔️ ({glycemia} mg/dL)")
+
     except Exception as e:
-        print("Erreur récupération LibreLinkUp :", e)
+        print(f"[Worker] Erreur récupération LibreLinkUp :", e)
 
 def worker_loop():
     while True:
         get_librelink_data()
-        time.sleep(60)  # récupérer toutes les 60s
+        sys.stdout.flush()  # forcer l'affichage dans les logs Render
+        time.sleep(60)  # toutes les 60 secondes
 
 # --- FLASK APP ---
 app = Flask(__name__)
@@ -52,4 +49,7 @@ def home():
 threading.Thread(target=worker_loop, daemon=True).start()
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    port = int(os.environ.get("PORT", 10000))
+    print(f"[Main] Démarrage de Flask sur le port {port}...")
+    sys.stdout.flush()
+    app.run(host="0.0.0.0", port=port)
